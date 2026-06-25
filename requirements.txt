@@ -1,0 +1,17 @@
+pandas
+numpy
+scikit-learn
+xgboost
+mlflow
+fastapi
+uvicorn
+psycopg2-binary
+great-expectations
+evidently
+apache-airflow
+pytest
+httpx
+python-dotenv
+sqlalchemy
+joblib
+requests
