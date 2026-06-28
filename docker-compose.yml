@@ -28,8 +28,9 @@ services:
   airflow:
     image: apache/airflow:2.8.0
     environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:password@postgres/airflow
+      AIRFLOW_CORE_EXECUTOR: LocalExecutor
+      AIRFLOW_DATABASE_SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:password@postgres/loan_default
+      AIRFLOW_CORE_LOAD_EXAMPLES: 'false'
     ports:
       - '8080:8080'
     volumes:
