@@ -6,10 +6,14 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import roc_auc_score, classification_report
 from sqlalchemy import create_engine
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def train_model():
     engine = create_engine(
-        'postgresql://admin:password@127.0.0.1:5432/loan_default'
+        f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"
+        f"@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
     )
     df = pd.read_sql('SELECT * FROM loan_applications', engine)
     df = df.dropna(subset=['target'])
@@ -25,7 +29,6 @@ def train_model():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
-
     scale = (y_train == 0).sum() / (y_train == 1).sum()
 
     model = xgb.XGBClassifier(
@@ -48,7 +51,6 @@ def train_model():
     os.makedirs('models', exist_ok=True)
     joblib.dump(model, 'models/xgboost_model.pkl')
     print('Model saved to models/xgboost_model.pkl')
-
     return auc
 
 if __name__ == '__main__':
