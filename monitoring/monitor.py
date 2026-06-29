@@ -76,7 +76,8 @@ def run_monitoring(simulate=False):
 
     if drift_share >= DRIFT_THRESHOLD:
         print(f'ALERT: Drift {drift_share:.2%} exceeds threshold {DRIFT_THRESHOLD:.2%}')
-        trigger_retraining()
+        # trigger_retraining()  # Disabled due to Airflow REST API authentication issue
+        print('Manual retraining required.')
     else:
         print('Drift within acceptable range. No retraining needed.')
 
