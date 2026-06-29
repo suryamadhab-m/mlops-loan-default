@@ -1,0 +1,58 @@
+name: MLOps CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, dev, m1-api]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    name: Run Unit Tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('api/requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r api/requirements.txt
+          pip install pytest httpx
+
+      - name: Run API tests
+        run: pytest tests/ -v --tb=short
+        env:
+          MLFLOW_TRACKING_URI: http://localhost:5000
+          POSTGRES_HOST: localhost
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: loan_default
+          POSTGRES_PORT: 5432
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build Docker Image
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build FastAPI Docker image
+        run: docker build -t loan-default-api:latest ./api
+
+      - name: Verify image was built
+        run: docker images loan-default-api
