@@ -16,7 +16,7 @@ services:
       - mlops-network
 
   mlflow:
-    image: ghcr.io/mlflow/mlflow:latest
+    image: ghcr.io/mlflow/mlflow:v2.9.2
     ports:
       - '5000:5000'
     command: mlflow server --host 0.0.0.0 --port 5000
@@ -28,9 +28,9 @@ services:
   airflow:
     image: apache/airflow:2.8.0
     environment:
-      AIRFLOW_CORE_EXECUTOR: LocalExecutor
-      AIRFLOW_DATABASE_SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:password@postgres/loan_default
-      AIRFLOW_CORE_LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:password@postgres/loan_default
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     ports:
       - '8080:8080'
     volumes:
@@ -38,6 +38,23 @@ services:
     depends_on:
       - postgres
     command: standalone
+    networks:
+      - mlops-network
+
+  fastapi:
+    build: ./api
+    ports:
+      - '8000:8000'
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=loan_default
+    depends_on:
+      - postgres
+      - mlflow
     networks:
       - mlops-network
 

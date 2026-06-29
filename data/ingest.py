@@ -1,14 +1,9 @@
 import pandas as pd
 from sqlalchemy import create_engine
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 def ingest_data():
     engine = create_engine(
-        f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"
-        f"@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
+        'postgresql://admin:password@127.0.0.1:5432/loan_default'
     )
     df = pd.read_csv('data/raw/application_train.csv')
     df.columns = df.columns.str.lower()
